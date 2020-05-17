@@ -7,6 +7,8 @@ For best visual effect, use it in a terminal.
 It can be compiled under WSL, using gcc 7.5.0.
 
 * I think a real Linux should also do the trick.
+* You can also use Mingw-w64.
+* In Releases tab, I provided a GUI shell for Windows. It needs a .Net Framework 4.7.2.
 
 ```text
             .-/+oossssoo+/-.
