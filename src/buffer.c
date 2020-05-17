@@ -13,7 +13,7 @@ buffer_t *create_buffer(int size)
     if (new_buffer == NULL)
     {
         print_error_information("create_buffer", "Can't allocated memory for buffer struct.");
-        exit(-1);
+        exit_("create_buffer", -1);
     }
 
     // initialize semaphores
@@ -26,7 +26,7 @@ buffer_t *create_buffer(int size)
     if (new_buffer->data == NULL)
     {
         print_error_information("create_buffer", "Can't allocated memory for real data.");
-        exit(-1);
+        exit_("create_buffer", -1);
     }
     // all 114514 at initialization
     for (int i = 0; i < size; i++)
@@ -130,30 +130,36 @@ bool is_buffer_full(buffer_t *buffer)
 
 void put_into_buffer(buffer_t *buffer, int element)
 {
+    extern int buffer_size;
     pthread_t self_tid;
     self_tid = pthread_self();
     int pos_to_write = buffer->write_pos;
     buffer->data[pos_to_write] = element;
     print_time_information("put_into_buffer");
-    printf("thread %#lx writes %d to buffer at pos %d.\n\n", self_tid, element, pos_to_write);
+    printf("thread ");
+    printf(PTHREAD_FORMAT, self_tid);
+    printf(" writes %d to buffer at pos %d.\n\n",element, pos_to_write);
     // update pos
-    buffer->write_pos = (pos_to_write + 1) % BUFFER_SIZE;
+    buffer->write_pos = (pos_to_write + 1) % buffer_size;
     (buffer->element_count)++;
     print_out_buffer_contents(buffer);
 }
 
 int read_from_buffer(buffer_t *buffer)
 {
+    extern int buffer_size;
     pthread_t self_tid;
     self_tid = pthread_self();
     int pos_to_read = buffer->read_pos;
     int value = buffer->data[pos_to_read];
     print_time_information("read_from_buffer");
-    printf("thread %#lx gets %d from buffer at pos %d.\n\n", self_tid, value, pos_to_read);
+    printf("thread ");
+    printf(PTHREAD_FORMAT, self_tid);
+    printf(" gets %d from buffer at pos %d.\n\n",value, pos_to_read);
     // clear data at the pos
     buffer->data[pos_to_read] = 114514;
     // update pos
-    buffer->read_pos = (pos_to_read + 1) % BUFFER_SIZE;
+    buffer->read_pos = (pos_to_read + 1) % buffer_size;
     (buffer->element_count)--;
     print_out_buffer_contents(buffer);
     return value;

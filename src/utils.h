@@ -10,4 +10,6 @@ void print_time_information(char* name);
 
 void print_error_information(char *name, char* information);
 
+void exit_(char *name, int exit_code);
+
 #endif

@@ -4,6 +4,8 @@
 #include "consumers.h"
 #include "variables.h"
 
+int buffer_size, producer_quantity, consumer_quantity;
+
 int main(void)
 {
     print_time_information("main");
@@ -11,17 +13,29 @@ int main(void)
 
     // init
     srand((unsigned)time(NULL));
-    buffer_t *real_buffer = create_buffer(BUFFER_SIZE);
+
+    // prompt for input
+    printf("Input your buffer size, quantity of the producer and consumer: ");
+    scanf("%d %d %d", &buffer_size, &producer_quantity, &consumer_quantity);
+    printf("\n\n");
+    print_time_information("main");
+    printf("Get input: buffer_size = %d, producer_quantity = %d, consumer_quantity = %d.\n\n", buffer_size, producer_quantity, consumer_quantity);
+    if (buffer_size <= 0 || producer_quantity <= 0 || consumer_quantity <= 0)
+    {
+        print_error_information("main", "Input doesn't fulfill requirements.");
+        exit_("main", -2);
+    }
+    buffer_t *real_buffer = create_buffer(buffer_size);
     print_out_buffer_contents(real_buffer);
-    producer_t *producer_list = create_producer_list(PRODUCER_QUANTITY);
-    consumer_t *consumer_list = create_consumer_list(CONSUMER_QUANTITY);
+    producer_t *producer_list = create_producer_list(producer_quantity);
+    consumer_t *consumer_list = create_consumer_list(consumer_quantity);
 
     // produce and consume
     create_and_run_producers(producer_list, real_buffer);
     create_and_run_consumers(consumer_list, real_buffer);
     join_producer_threads(producer_list);
     join_consumer_threads(consumer_list);
-    
+
     sleep(1);
     // clean up
     print_time_information("clean_up");

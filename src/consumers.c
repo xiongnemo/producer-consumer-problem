@@ -11,14 +11,14 @@ consumer_t *create_consumer_list(int size)
     if (new_consumer_list == NULL)
     {
         print_error_information("create_consumer_list", "Can't allocated memory for consumer list.");
-        exit(-1);
+        exit_("create_consumer_list", -1);
     }
     // initialize data
     new_consumer_list->thread_id = (pthread_t *)malloc(sizeof(pthread_t) * size);
     if (new_consumer_list->thread_id == NULL)
     {
         print_error_information("create_consumer_list", "Can't allocated memory for consumers' thread id.");
-        exit(-1);
+        exit_("create_consumer_list", -1);
     }
     new_consumer_list->size = size;
 
@@ -47,16 +47,21 @@ void create_and_run_consumers(consumer_t *consumer_list, buffer_t *buffer)
     {
         pthread_create(&(consumer_list->thread_id[i]), NULL, consume, buffer);
         print_time_information("create_and_run_consumers");
-        printf("created thread with id %#lx for consumer\n\n", consumer_list->thread_id[i]);
+        printf("created thread with id ");
+        printf(PTHREAD_FORMAT, consumer_list->thread_id[i]);
+        printf(" for consumer\n\n");
     }
 }
 
 void join_consumer_threads(consumer_t *consumer_list)
 {
-    for (int i = 0; i < PRODUCER_QUANTITY; i++)
+    int consumer_count = consumer_list->size;
+    for (int i = 0; i < consumer_count; i++)
     {
         print_time_information("join_consumer_threads");
-        printf("consumer thread id %#lx will be joined\n\n", consumer_list->thread_id[i]);
+        printf("consumer thread id ");
+        printf(PTHREAD_FORMAT, consumer_list->thread_id[i]);
+        printf(" will be joined\n\n");
         pthread_join(consumer_list->thread_id[i], NULL);
     }
 }
@@ -67,8 +72,9 @@ void *consume(void *buffer)
     // https://zh.wikipedia.org/wiki/%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E8%B4%B9%E8%80%85%E9%97%AE%E9%A2%98
     // no void*
     buffer_t *buffer_ptr = (buffer_t *)buffer;
+    extern int producer_quantity;
     // long long long loop
-    for (int i = 0; i < CONSUMER_OPERATION_COUNT; i++)
+    for (int i = 0; i < K * producer_quantity; i++)
     {
         pthread_t self_tid;
         self_tid = pthread_self();
@@ -81,10 +87,14 @@ void *consume(void *buffer)
         }
         // get value from buffer
         print_time_information("consumer");
-        printf("thread %#lx prepare to read\n\n", self_tid);
+        printf("thread ");
+        printf(PTHREAD_FORMAT, self_tid);
+        printf(" prepare to read\n\n");
         int value = read_from_buffer(buffer_ptr);
         print_time_information("consumer");
-        printf("thread %#lx got %d\n\n", self_tid, value);
+        printf("thread ");
+        printf(PTHREAD_FORMAT, self_tid);
+        printf(" got %d\n\n", value);
         // after one value is read, the buffer can be written!
         pthread_cond_signal(&(buffer_ptr->can_be_written));
         // release lock
