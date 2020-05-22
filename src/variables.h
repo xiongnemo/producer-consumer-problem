@@ -10,7 +10,7 @@
 #ifdef _WIN32
 #define PTHREAD_FORMAT "%#I64x"
 #endif
-#ifdef __gnu_linux__
+#ifdef __linux__
 #define PTHREAD_FORMAT "%#lx"
 #endif
 // #define TOTAL_OPERATION_COUNT (CONSUMER_QUANTITY*PRODUCER_QUANTITY*K)
